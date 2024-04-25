@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">prowler</string>
+    <string name="app_topBar">Prowler</string>
+    <string name="vpn_capture">Connect</string>
+    <string name="vpn_stop">Stop</string>
 </resources>
