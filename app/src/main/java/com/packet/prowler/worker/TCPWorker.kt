@@ -8,8 +8,6 @@ import android.util.Log
 import com.packet.prowler.utils.IpUtil
 import com.packet.prowler.utils.Packet
 import com.packet.prowler.utils.TcpStatus
-import com.packet.prowler.utils.deviceToNetworkTCPQueue
-import com.packet.prowler.utils.networkToDeviceQueue
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey

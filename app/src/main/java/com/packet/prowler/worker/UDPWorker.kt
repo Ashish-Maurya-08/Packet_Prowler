@@ -5,8 +5,6 @@ import android.net.VpnService
 import android.util.Log
 import com.packet.prowler.utils.IpUtil
 import com.packet.prowler.utils.Packet
-import com.packet.prowler.utils.deviceToNetworkUDPQueue
-import com.packet.prowler.utils.networkToDeviceQueue
 import java.net.ConnectException
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer

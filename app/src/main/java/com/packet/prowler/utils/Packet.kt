@@ -1,14 +1,16 @@
 package com.packet.prowler.utils
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
+import com.packet.prowler.services.ProwlerService
+import com.packet.prowler.services.cManager
 import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicLong
 
 
-/**
- * Representation of an IP Packet
- */
-// TODO: Reduce public mutability
 class Packet() {
     var ip4Header: IP4Header? = null
     var tcpHeader: TCPHeader? = null
@@ -18,10 +20,17 @@ class Packet() {
     var isTCP: Boolean = false
     var isUDP: Boolean = false
 
+    var isSent : Boolean = false
+    var isReceived : Boolean = false
+
+    var uid : Int? = null
+
+
     init {
         globalPackId.addAndGet(1)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     constructor(buffer: ByteBuffer) : this() {
         this.ip4Header = IP4Header(buffer)
         if (ip4Header!!.protocol == IP4Header.TransportProtocol.TCP) {
@@ -32,6 +41,10 @@ class Packet() {
             this.isUDP = true
         }
         this.backingBuffer = buffer
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            this.uid = getUid()
+        }
+        setSentorReceived()
     }
 
     fun release() {
@@ -39,7 +52,49 @@ class Packet() {
         tcpHeader = null
         udpHeader = null
         backingBuffer = null
+        uid = null
     }
+
+    private fun setSentorReceived() {
+        if (ip4Header?.sourceAddress == InetAddress.getByName(ProwlerService.IP_ADDRESS)){
+            this.isSent = true
+        } else if (ip4Header?.destinationAddress == InetAddress.getByName(ProwlerService.IP_ADDRESS)){
+            this.isReceived = true
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun getUid(): Int {
+        if (cManager == null) return -1
+        if (!isTCP && !isUDP) return -1
+        val source = ip4Header!!.sourceAddress
+        val destination = ip4Header!!.destinationAddress
+        if (isTCP) {
+            val sPort = tcpHeader!!.sourcePort
+            val dPort = tcpHeader!!.destinationPort
+            val local = InetSocketAddress(source, sPort)
+            val remote = InetSocketAddress(destination, dPort)
+            val uid = cManager!!.getConnectionOwnerUid(6, local, remote)
+            return if (uid != -1) {
+                uid
+            } else{
+                cManager!!.getConnectionOwnerUid(6, remote, local)
+            }
+        } else if (isUDP) {
+            val sPort = udpHeader!!.sourcePort
+            val dPort = udpHeader!!.destinationPort
+            val local = InetSocketAddress(source, sPort)
+            val remote = InetSocketAddress(destination, dPort)
+            val uid = cManager!!.getConnectionOwnerUid(17, local, remote)
+            return if (uid != -1) {
+                uid
+            } else{
+                cManager!!.getConnectionOwnerUid(17, remote, local)
+            }
+        }
+        return -1
+    }
+
 
     override fun toString(): String {
         val sb = StringBuilder("Packet{")

@@ -1,34 +1,43 @@
 package com.packet.prowler.services
 
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.ConnectivityManager
 import android.net.VpnService
+import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.packet.prowler.utils.ToDeviceQueueWorker
-import com.packet.prowler.utils.ToNetworkQueueWorker
+import com.packet.prowler.worker.ToDeviceQueueWorker
+import com.packet.prowler.worker.ToNetworkQueueWorker
 import com.packet.prowler.worker.TcpWorker
 import com.packet.prowler.worker.UdpReceiveWorker
 import com.packet.prowler.worker.UdpSendWorker
 import com.packet.prowler.worker.UdpSocketCleanWorker
-import kotlinx.coroutines.Job
+import com.packet.prowler.worker.categorize
 
 var isRunning by mutableStateOf(false)
+var cManager : ConnectivityManager? = null
+var pkgManager : PackageManager? = null
 
 class ProwlerService : VpnService() {
 
     private lateinit var vpnInterface: ParcelFileDescriptor
 
-
-
-
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate() {
         UdpSendWorker.start(this)
         UdpReceiveWorker.start(this)
         UdpSocketCleanWorker.start()
         TcpWorker.start(this)
+        categorize.start()
+
+        cManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        pkgManager = packageManager
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -51,6 +60,7 @@ class ProwlerService : VpnService() {
         UdpReceiveWorker.stop()
         UdpSocketCleanWorker.stop()
         TcpWorker.stop()
+        categorize.stop()
         stopVpn()
 
         super.onDestroy()
@@ -72,7 +82,7 @@ class ProwlerService : VpnService() {
     private fun configureVpn(): ParcelFileDescriptor {
         val builder = Builder()
         builder.setSession("vpn")
-        builder.addAddress("10.0.0.2", 24)
+        builder.addAddress(IP_ADDRESS, 24)
         builder.addRoute("0.0.0.0", 0)
         builder.setMtu(1500)
 
@@ -94,14 +104,9 @@ class ProwlerService : VpnService() {
         super.onRevoke()
     }
 
-
-
-
     companion object {
         const val ACTION_STOP_VPN = "ACTION_STOP_VPN"
+        const val IP_ADDRESS = "10.0.0.8"
     }
-
-
-
 
 }

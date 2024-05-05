@@ -1,10 +1,15 @@
-package com.packet.prowler.utils
+package com.packet.prowler.worker
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.compose.runtime.setValue
+import com.packet.prowler.utils.Packet
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.ClosedByInterruptException
 import java.nio.channels.FileChannel
@@ -15,23 +20,11 @@ val deviceToNetworkUDPQueue = ArrayBlockingQueue<Packet>(1024)
 val deviceToNetworkTCPQueue = ArrayBlockingQueue<Packet>(1024)
 val networkToDeviceQueue = ArrayBlockingQueue<ByteBuffer>(1024)
 
-
 object ToNetworkQueueWorker : Runnable {
+
     private const val TAG = "ToNetworkQueueWorker"
-
-    /**
-     * own thread
-     */
     private lateinit var thread: Thread
-
-    /**
-     * read data channel from device
-     */
     private lateinit var vpnInput: FileChannel
-
-    /**
-     * overall read data byte count
-     */
     var totalInputCount = 0L
 
 
@@ -50,6 +43,7 @@ object ToNetworkQueueWorker : Runnable {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun run() {
         val readBuffer = ByteBuffer.allocate(16384)
         while (!thread.isInterrupted) {
@@ -60,15 +54,18 @@ object ToNetworkQueueWorker : Runnable {
                 e.printStackTrace()
                 continue
             }
+
             if (readCount > 0) {
                 readBuffer.flip()
+
+                addPacket(readBuffer)
+
                 val byteArray = ByteArray(readCount)
                 readBuffer.get(byteArray)
-
                 val byteBuffer = ByteBuffer.wrap(byteArray)
                 totalInputCount += readCount
-
                 val packet = Packet(byteBuffer)
+
                 if (packet.isUDP) {
                     deviceToNetworkUDPQueue.offer(packet)
                 } else if (packet.isTCP) {
@@ -84,37 +81,17 @@ object ToNetworkQueueWorker : Runnable {
         Log.i(TAG, "ToNetworkQueueWorker")
     }
 
-    fun checkWebUrl(packet: Packet) {
-        val pktBuffer = packet.backingBuffer
-        if (pktBuffer != null) {
-            pktBuffer.mark()
-        val tmpBytes = byteArrayOf()
-        pktBuffer.get(tmpBytes)
-        pktBuffer.reset()
-        }
-    }
 }
 
-/**
- * processing network communication device packet processing thread
- */
+
+
 object ToDeviceQueueWorker : Runnable {
+
     private const val TAG = "ToDeviceQueueWorker"
-
-    /**
-     * own thread
-     */
     private lateinit var thread: Thread
-
-    /**
-     * overall write data byte count
-     */
     var totalOutputCount = 0L
 
 
-    /**
-     * write from network data channel
-     */
     private lateinit var vpnOutput: FileChannel
 
     fun start(vpnFileDescriptor: FileDescriptor) {
@@ -132,11 +109,15 @@ object ToDeviceQueueWorker : Runnable {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun run() {
         try {
             while (!thread.isInterrupted) {
                 val byteBuffer = networkToDeviceQueue.take()
                 byteBuffer.flip()
+
+                addPacket(byteBuffer)
+
                 while (byteBuffer.hasRemaining()) {
                     val count = vpnOutput.write(byteBuffer)
                     if (count > 0) {
@@ -149,6 +130,16 @@ object ToDeviceQueueWorker : Runnable {
         } catch (_: ClosedByInterruptException) {
 
         }
-
     }
 }
+
+
+@RequiresApi(Build.VERSION_CODES.Q)
+fun addPacket(byteBuffer: ByteBuffer){
+    val buffer = byteBuffer.duplicate()
+    val packet = Packet(buffer)
+    if (packet.isUDP || packet.isTCP){
+        allPackets.offer(packet)
+    }
+}
+
