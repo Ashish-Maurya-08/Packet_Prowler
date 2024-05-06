@@ -3,13 +3,13 @@ package com.packet.prowler.worker
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.setValue
 import com.packet.prowler.utils.Packet
+import com.packet.prowler.viewmodel.allPackets
+import com.packet.prowler.viewmodel.totalSize
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.ClosedByInterruptException
 import java.nio.channels.FileChannel
@@ -59,6 +59,7 @@ object ToNetworkQueueWorker : Runnable {
                 readBuffer.flip()
 
                 addPacket(readBuffer)
+
 
                 val byteArray = ByteArray(readCount)
                 readBuffer.get(byteArray)
@@ -139,6 +140,8 @@ fun addPacket(byteBuffer: ByteBuffer){
     val buffer = byteBuffer.duplicate()
     val packet = Packet(buffer)
     if (packet.isUDP || packet.isTCP){
+        totalSize += byteBuffer.remaining()
+        Log.d("TotalSize", totalSize.toString())
         allPackets.offer(packet)
     }
 }

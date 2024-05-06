@@ -1,18 +1,13 @@
 package com.packet.prowler.worker
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import com.packet.prowler.utils.Packet
 import com.packet.prowler.utils.packetGroup
-import com.packet.prowler.worker.categorize.TAG
-import java.lang.Thread.sleep
-import java.util.concurrent.ArrayBlockingQueue
+import com.packet.prowler.viewmodel.allPackets
+import com.packet.prowler.viewmodel.categorizedPackets
 
-val allPackets  = ArrayBlockingQueue<Packet>(1024)
-val categorizedPackets = ArrayList<packetGroup>()
 
-object categorize : Runnable {
+object Categorize : Runnable {
 
     private const val TAG = "categorize"
     private lateinit var thread: Thread

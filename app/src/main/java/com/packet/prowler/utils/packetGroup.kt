@@ -3,12 +3,8 @@ package com.packet.prowler.utils
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import com.packet.prowler.services.pkgManager
 import java.net.InetAddress
-
 
 
 data class packetGroup(

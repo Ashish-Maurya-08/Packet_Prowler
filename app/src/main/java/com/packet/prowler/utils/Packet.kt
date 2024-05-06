@@ -1,7 +1,6 @@
 package com.packet.prowler.utils
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.packet.prowler.services.ProwlerService
 import com.packet.prowler.services.cManager

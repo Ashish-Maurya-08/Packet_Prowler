@@ -5,19 +5,17 @@ import android.net.VpnService
 import android.util.Log
 import com.packet.prowler.utils.IpUtil
 import com.packet.prowler.utils.Packet
+import com.packet.prowler.viewmodel.udpNioSelector
+import com.packet.prowler.viewmodel.udpSocketMap
+import com.packet.prowler.viewmodel.udpTunnelQueue
 import java.net.ConnectException
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.DatagramChannel
 import java.nio.channels.SelectionKey
-import java.nio.channels.Selector
-import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.atomic.AtomicInteger
 
 
-val udpTunnelQueue = ArrayBlockingQueue<UdpTunnel>(1024)
-val udpNioSelector: Selector = Selector.open()
-val udpSocketMap = HashMap<String, ManagedDatagramChannel>()
 const val UDP_SOCKET_IDLE_TIMEOUT = 60
 
 

@@ -8,15 +8,14 @@ import android.util.Log
 import com.packet.prowler.utils.IpUtil
 import com.packet.prowler.utils.Packet
 import com.packet.prowler.utils.TcpStatus
+import com.packet.prowler.viewmodel.tcpNioSelector
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey
-import java.nio.channels.Selector
 import java.nio.channels.SocketChannel
 import kotlin.experimental.and
 import kotlin.experimental.or
 
-val tcpNioSelector: Selector = Selector.open()
 
 class TcpPipe(val tunnelKey: String, packet: Packet) {
     var mySequenceNum: Long = 0

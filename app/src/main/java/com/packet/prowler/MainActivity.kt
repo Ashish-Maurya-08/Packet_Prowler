@@ -4,22 +4,16 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.DrawableWrapper
-import android.graphics.drawable.Icon
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Space
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.appcompat.widget.DrawableUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -73,17 +66,10 @@ import com.packet.prowler.services.isRunning
 import com.packet.prowler.ui.theme.AppTheme
 import com.packet.prowler.utils.packetGroup
 import com.packet.prowler.utils.ports
-import com.packet.prowler.worker.categorizedPackets
+import com.packet.prowler.viewmodel.Screens
+import com.packet.prowler.viewmodel.categorizedPackets
+import com.packet.prowler.viewmodel.totalSize
 import java.net.InetAddress
-
-
-enum class Screens(
-){
-    Home,
-    ListPage,
-    DataPage
-}
-
 
 
 class MainActivity : ComponentActivity() {
@@ -231,12 +217,23 @@ fun HomeScreen() {
                 .height(200.dp)
                 .width(200.dp)
             ) {
+            val size = convertBytes(totalSize)
             Text(
-                text = if (!isRunning) "Start" else "Stop",
+
+                text = if (!isRunning) "Start" else "$size",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
         }
+    }
+}
+
+fun convertBytes(totalSize: Long): Any {
+    return when {
+        totalSize < 1024 -> "$totalSize B"
+        totalSize < 1024 * 1024 -> "${totalSize / 1024} KB"
+        totalSize < 1024 * 1024 * 1024 -> "${totalSize / (1024 * 1024)} MB"
+        else -> "${totalSize / (1024 * 1024 * 1024)} GB"
     }
 }
 

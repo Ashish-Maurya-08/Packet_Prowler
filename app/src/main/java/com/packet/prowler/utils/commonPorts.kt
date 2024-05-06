@@ -1,6 +1,6 @@
 package com.packet.prowler.utils
 
-val ports = mutableMapOf<Int,String>(
+val ports = mutableMapOf(
     1 to "TCPMUX",
     5 to "RJE",
     7 to "ECHO",
@@ -137,6 +137,7 @@ val ports = mutableMapOf<Int,String>(
     2483 to "Oracle",
     2484 to "Oracle",
     4664 to "Google Desktop",
+    5222 to "XMPP",
     5432 to "PostgreSQL",
     5800 to "VNC",
     5900 to "VNC",
