@@ -41,9 +41,6 @@ data class ManagedDatagramChannel(
 object UdpSendWorker : Runnable {
     private const val TAG = "UdpSendWorker"
 
-    /**
-     * own thread
-     */
     private lateinit var thread: Thread
 
     private var vpnService: VpnService? = null
@@ -143,9 +140,7 @@ object UdpReceiveWorker : Runnable {
 
     private const val TAG = "UdpReceiveWorker"
 
-    /**
-     * own thread
-     */
+
     private lateinit var thread: Thread
 
     private var vpnService: VpnService? = null
@@ -233,14 +228,9 @@ object UdpSocketCleanWorker : Runnable {
 
     private const val TAG = "UdpSocketCleanWorker"
 
-    /**
-     * own thread
-     */
     private lateinit var thread: Thread
 
-    /**
-     * check interval, unit: second
-     */
+
     private const val INTERVAL_TIME = 5L
 
     fun start() {

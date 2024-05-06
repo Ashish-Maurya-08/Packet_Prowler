@@ -255,9 +255,7 @@ object TcpWorker : Runnable {
 
     }
 
-    /**
-     * send tcp package
-     */
+
     private fun sendTcpPack(tcpPipe: TcpPipe, flag: Byte, data: ByteArray? = null) {
         val dataSize = data?.size ?: 0
         Log.d(
@@ -306,9 +304,7 @@ object TcpWorker : Runnable {
 
     }
 
-    /**
-     * overwrite data
-     */
+
     private fun tryFlushWrite(tcpPipe: TcpPipe): Boolean {
         val channel: SocketChannel = tcpPipe.remoteSocketChannel
         val buffer = tcpPipe.remoteOutBuffer
@@ -345,9 +341,6 @@ object TcpWorker : Runnable {
         if (!tcpPipe.upActive) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 tcpPipe.remoteSocketChannel.shutdownOutput()
-            } else {
-                //todo The following sentence will result in incorrect handling of socket，But there is no solution here, no problem？
-//                tcpPipe.remoteSocketChannel.close()
             }
         }
         return true

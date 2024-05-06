@@ -147,6 +147,13 @@ val ports = mutableMapOf<Int,String>(
     10000 to "Webmin",
     12345 to "NetBus",
     13720 to "NetBackup",
-    16992 to "Intel AMT"
+    16992 to "Intel AMT",
+    5228 to "Google Play",
+    10000 to "Webmin",
+    8080 to "HTTP",
+    45879 to "BBM",
+    49937 to "SAP",
+    40833 to "Carpark",
+    38299 to "Checkpoint",
 )
 

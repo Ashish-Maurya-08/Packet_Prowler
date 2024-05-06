@@ -44,42 +44,43 @@ object categorize : Runnable {
             }
             else {
                 var foundFlag = false
-                for (group in categorizedPackets){
-                    if (group.uid != packet.uid){
+                for (newPacket in categorizedPackets){
+                    if (newPacket.uid != packet.uid){
                         continue
                     }
 
                     if (packet.isSent) {
-
                         val remoteIP = packet.ip4Header?.destinationAddress
                         val remotePort =
                             packet.tcpHeader?.destinationPort ?: packet.udpHeader?.destinationPort
 
-                        if (group.remoteIP == packet.ip4Header?.destinationAddress && group.remotePort == (packet.tcpHeader?.destinationPort
+                        if (newPacket.remoteIP == packet.ip4Header?.destinationAddress && newPacket.remotePort == (packet.tcpHeader?.destinationPort
                                 ?: packet.udpHeader?.destinationPort)
                         ) {
-                            group.sent.add(packet)
+                            newPacket.sent.add(packet)
                             foundFlag = true
+                            break
                         } else {
                             Log.d(
-                                "vpn", "${group.remoteIP} $remoteIP ${group.remotePort} $remotePort"
+                                "vpn", "${newPacket.remoteIP} $remoteIP ${newPacket.remotePort} $remotePort"
                             )
                             continue
                         }
-                    } else if (packet.isReceived) {
+                    } else {
 
                         val remoteIP = packet.ip4Header?.sourceAddress
                         val remotePort =
                             packet.tcpHeader?.sourcePort ?: packet.udpHeader?.sourcePort
 
-                        if (group.remoteIP == packet.ip4Header?.sourceAddress && group.remotePort == (packet.tcpHeader?.sourcePort
+                        if (newPacket.remoteIP == packet.ip4Header?.sourceAddress && newPacket.remotePort == (packet.tcpHeader?.sourcePort
                                 ?: packet.udpHeader?.sourcePort)
                         ) {
-                            group.received.add(packet)
+                            newPacket.received.add(packet)
                             foundFlag = true
+                            break
                         } else {
                             Log.d(
-                                "vpn", "${group.remoteIP} $remoteIP ${group.remotePort} $remotePort"
+                                "vpn", "${newPacket.remoteIP} $remoteIP ${newPacket.remotePort} $remotePort"
                             )
                             continue
                         }
