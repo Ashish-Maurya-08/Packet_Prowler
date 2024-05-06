@@ -338,7 +338,7 @@ fun PacketItem(packet: packetGroup) {
             } else {
                 Text(text = "${packet.remotePort}", fontSize = 12.sp)
             }
-            Text(text = "${packet.remoteIP?.hostAddress ?: packet.remoteIP }", fontSize = 12.sp)
+            Text(text = "${packet.remoteIP.hostAddress ?: packet.remoteIP }", fontSize = 12.sp)
         }
         Column(
             modifier = Modifier
