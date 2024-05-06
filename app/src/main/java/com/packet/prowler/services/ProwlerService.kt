@@ -18,7 +18,7 @@ import com.packet.prowler.worker.TcpWorker
 import com.packet.prowler.worker.UdpReceiveWorker
 import com.packet.prowler.worker.UdpSendWorker
 import com.packet.prowler.worker.UdpSocketCleanWorker
-import com.packet.prowler.worker.categorize
+import com.packet.prowler.worker.Categorize
 
 var isRunning by mutableStateOf(false)
 var cManager : ConnectivityManager? = null
@@ -34,9 +34,9 @@ class ProwlerService : VpnService() {
         UdpReceiveWorker.start(this)
         UdpSocketCleanWorker.start()
         TcpWorker.start(this)
-        categorize.start()
+        Categorize.start()
 
-        cManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        cManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         pkgManager = packageManager
     }
 
@@ -60,7 +60,7 @@ class ProwlerService : VpnService() {
         UdpReceiveWorker.stop()
         UdpSocketCleanWorker.stop()
         TcpWorker.stop()
-        categorize.stop()
+        Categorize.stop()
         stopVpn()
 
         super.onDestroy()
